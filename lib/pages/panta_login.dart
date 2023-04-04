@@ -5,7 +5,7 @@ import 'package:flutter_proyecto_segunda_evaluacion/pages/home_admin.dart';
 import 'home_user.dart';
 
 
-String role = '';
+
 class Login extends StatelessWidget {
   Duration get loginTime => Duration(milliseconds: 2250);
   
@@ -21,10 +21,19 @@ class Login extends StatelessWidget {
           UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
               email: loginData.name,
               password: loginData.password,
-      );
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('roles').doc(userCredential.user!.uid).get();
-      String role = userDoc.get('role');
 
+      );
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).get();
+      if (!userDoc.exists){
+        FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).set({
+                  'email': FirebaseAuth.instance.currentUser!.email,
+                  'role': 'user',
+                  
+                });
+
+      }       
+
+      
       return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -45,8 +54,9 @@ class Login extends StatelessWidget {
       );
       FirebaseFirestore.instance.collection('roles').doc(userCredential.user!.uid).set({
         'role': 'user',
+        'email': userCredential.user!.email,
       });
-      role = 'user';
+
       
       
       return null;
@@ -83,13 +93,13 @@ class Login extends StatelessWidget {
               );
               await FirebaseAuth.instance.signInWithCredential(credential);
               DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).get();
-              if(userDoc.exists){
-                role = userDoc.get('role');
-              }else{
+              if(!userDoc.exists){
                 FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).set({
+                  'email': FirebaseAuth.instance.currentUser!.email,
                   'role': 'user',
+                  
                 });
-                role = 'user';
+               
       }
       
               return null;
@@ -109,15 +119,27 @@ class Login extends StatelessWidget {
   ],
   onSubmitAnimationCompleted: () {
 
-    if (role == 'admin') {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => HomeAdmin(),
-      ));
-    } else {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => HomeUser(),
-      ));
-    }
+      //Obtner rol de firebase y redirigir a la pagina correspondiente
+      FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).get().then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          if(documentSnapshot['role'] == 'admin'){
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => HomeAdmin(),
+            ));
+          }else{
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => HomeUser(),
+            ));
+          }
+        } 
+      });
+
+      
+
+      // Navigator.of(context).pushReplacement(MaterialPageRoute(
+      //   builder: (context) => HomeUser(),
+      // ));
+    
     
   }, 
   onRecoverPassword: (String ) {  },
