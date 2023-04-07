@@ -50,35 +50,46 @@ class BocadilloService {
         var bocadilloData = doc.data();
         bocadilloData['uid'] = doc.id;
         bocadillos.add(Bocadillo.fromJson(bocadilloData));
+        print("Bocadillo: ");
+        print(bocadilloData);
       });
     } catch (e) {}
 
     return bocadillos;
   }
 
-  static Future<void> addBocadillo(String name, String description, String photoUrl) async {
-
-
+  static Future<void> addBocadillo(String name, String description, String photoUrl, double price, List<String> ingredients ) async {
     Bocadillo bocadillo = Bocadillo(
       name: name,
       description: description,
       photoUrl: photoUrl,
+      price: price,
+      ingredients: ingredients,
+      
     );
     FirebaseFirestore.instance.collection(COLLECTION_NAME).add(bocadillo.toJson());
   }
+
 
   static void eliminarBocadillo(String uid) {
     //Obtener bocadillo con id y eliminarlo de la base de datos
     FirebaseFirestore.instance.collection(COLLECTION_NAME).doc(uid).delete();
   }
 
-  static Future<void> actualizarBocadillo(
-      String uid, String name, String description, String photoUrl) {
+static Future<void> actualizarBocadillo(
+      String uid, String name, String description, String photoUrl, double price,  List<String> ingredients ) {
         
     CollectionReference bocadillos = FirebaseFirestore.instance.collection(COLLECTION_NAME);
     return bocadillos
         .doc(uid)
-        .update({'description': description, 'name': name, 'photoUrl': photoUrl})
+        .update({
+          'description': description, 
+          'name': name, 
+          'photoUrl': photoUrl,
+          'price': price,
+          'ingredients': ingredients,
+    
+        })
         .then((value) => SnackBar(content: Text("Bocadillo actualizado correctamente")))
         .catchError((error) => SnackBar(content: Text("Error al actualizar bocadillo")));
   }

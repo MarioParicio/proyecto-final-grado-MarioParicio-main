@@ -315,11 +315,7 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                         return;
                       }
                       print("Añadiendo bocadillo" + _nameController.text);
-                      await BocadilloService.addBocadillo(_nameController.text,
-                      _descriptionController.text,
-                      //Set state
-                           _photoUrlController.text);
-                           _refreshPage(context);
+                      
                           
 
                       
@@ -594,11 +590,7 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                         return;
                       }
                   
-                  await BocadilloService.actualizarBocadillo(
-                    uid,
-                   _nameController.text,
-                    _descriptionController.text,
-                      _photoUrlController.text);
+                  
                       
                   
                   _refreshPage(context);

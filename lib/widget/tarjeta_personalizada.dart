@@ -6,18 +6,23 @@ class TarjetaPersonalizada extends StatelessWidget {
     required this.name,
     required this.photoUrl,
     required this.description,
+    required this.price,
+    
+
   }) : super(key: key);
 
   final String name;
   final String photoUrl;
   final String description;
+  final double price;
+
+
 
   @override
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      //shadowColor: Colors.orange,
       elevation: 10,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,7 +37,6 @@ class TarjetaPersonalizada extends StatelessWidget {
                   placeholder: const AssetImage('assets/placeHolderBocadillo.jpeg'),
                   fadeInDuration: const Duration(milliseconds: 300),
                   fit: BoxFit.cover,
-                  
                 ),
                 Positioned(
                   bottom: 0,
@@ -55,7 +59,6 @@ class TarjetaPersonalizada extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    
                   ),
                 ),
               ],
@@ -69,6 +72,16 @@ class TarjetaPersonalizada extends StatelessWidget {
               style: TextStyle(fontSize: 16.0),
             ),
           ),
+          SizedBox(height: 10.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Text(
+              'Precio: \$${price.toStringAsFixed(2)}',
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            ),
+          ),
+          
+          
           SizedBox(height: 10.0),
         ],
       ),

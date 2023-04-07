@@ -1,10 +1,13 @@
 
 
+import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:flutter_proyecto_segunda_evaluacion/imports.dart';
+//http 
+import 'package:http/http.dart' as http;
 
 import '../service/bocadillo_service.dart';
 
@@ -253,42 +256,95 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
     tabController.dispose();
     super.dispose();
   }
-  void showItemDialogCreate() {
-    // 2 - Los EditController necesitan sus controladores asociados
+void showItemDialogCreate() {
+  // 2 - Los EditController necesitan sus controladores asociados
 
-    TextEditingController _nameController = TextEditingController();
-    TextEditingController _descriptionController = TextEditingController();
-    TextEditingController _photoUrlController = TextEditingController();
-    // 1 - Llamamos a showDialog para abrir una ventana emergente
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: const [
-                    SizedBox(
-                        width: 70, child: Icon(Icons.data_object_outlined)),
-                    SizedBox(
-                        child: Text('Añadir Producto',
-                            style: TextStyle(fontSize: 20)))
-                  ],
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Nombre'),
-                  controller: _nameController,
-                ),
-                TextField(
-                  decoration: const InputDecoration(
-                      labelText: 'Descripción del producto'),
-                  controller: _descriptionController,
-                ),
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _photoUrlController = TextEditingController();
+  TextEditingController _priceController = TextEditingController();
+  TextEditingController _ingredientsController = TextEditingController();
+  List<String> _ingredients = [];
+
+  // 1 - Llamamos a showDialog para abrir una ventana emergente
+  showDialog(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: const [
+                  SizedBox(
+                      width: 70, child: Icon(Icons.data_object_outlined)),
+                  SizedBox(
+                      child: Text('Añadir Producto',
+                          style: TextStyle(fontSize: 20)))
+                ],
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Nombre'),
+                controller: _nameController,
+              ),
+              
+              TextField(
+                decoration: const InputDecoration(labelText: 'Precio'),
+                controller: _priceController,
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'ingredientes'),
+                //texto de la lista ingredientes
+                controller: _ingredientsController,
+                readOnly: true,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      TextEditingController _ingredientController =
+                          TextEditingController();
+                      return AlertDialog(
+                        title: const Text("Agregar ingrediente"),
+                        content: TextField(
+                          controller: _ingredientController,
+                          decoration: InputDecoration(
+                            hintText: "Ingrediente",
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              if (_ingredientController.text.isNotEmpty) {
+                                _ingredients.add(_ingredientController.text);
+                                _ingredientsController.text = _ingredients.join(', ');
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: const Text("Agregar"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Cancelar"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: const Text('Agregar ingrediente'),
+              ),
+
+   
+              
                 //Boton seleccionar imagen
                 ElevatedButton(
                     onPressed: () async {
@@ -302,37 +358,38 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                     },
                     child: const Text('Seleccionar imagen')),
                 
-                TextButton(
-                    onPressed: ()async {
-                      if(_nameController.text == "" || _descriptionController.text == "" || _photoUrlController.text == ""){
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Rellena todos los campos'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        return;
-                      }
-                      print("Añadiendo bocadillo" + _nameController.text);
-                      await BocadilloService.addBocadillo(_nameController.text,
-                      _descriptionController.text,
-                      //Set state
-                           _photoUrlController.text);
-                           _refreshPage(context);
-                          
-
-                      
-                      
-                    },
-                    child:
-                        const Text('Añadir', style: TextStyle(fontSize: 18))),
-              ],
-            ),
+               TextButton(
+                  onPressed: () async {
+                    if (_nameController.text == "" ||
+                        _photoUrlController.text == "" ||
+                        _priceController.text == "") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Rellena todos los campos'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    String description = await generateDescription(
+                        _nameController.text, _ingredients);
+                    print("Añadiendo bocadillo" + _nameController.text);
+                    await BocadilloService.addBocadillo(
+                        _nameController.text,
+                        description,
+                        _photoUrlController.text,
+                        double.parse(_priceController.text),
+                        _ingredients);
+                    _refreshPage(context);
+                  },
+                  child: const Text('Añadir', style: TextStyle(fontSize: 18))),
+            ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
   Widget bothPanels(BuildContext context, BoxConstraints constraints) {
     //Usa la función asincrona FetchBocadillos
@@ -406,12 +463,17 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                                 _bocadillos[index].name,
                                 _bocadillos[index].description,
                                 _bocadillos[index].photoUrl,
+                                _bocadillos[index].price,
+                                _bocadillos[index].ingredients,
+
+
                               );
                             },
                             child: TarjetaPersonalizada(
                               description: _bocadillos[index].description,
                               photoUrl: _bocadillos[index].photoUrl,
                               name: _bocadillos[index].name,
+                              price: 3.5,
                             ),
                           ),
                         );
@@ -519,71 +581,135 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
   }
 
 
-  void showItemDialogUpdate(uid, name, description, photoUrl) {
-    TextEditingController _nameController = TextEditingController();
-    TextEditingController _descriptionController = TextEditingController();
-    TextEditingController _photoUrlController = TextEditingController();
-    TextEditingController _uidController = TextEditingController();
-    _nameController.text = name;
-    _descriptionController.text = description;
-    _photoUrlController.text = photoUrl;
-    _uidController.text = uid;
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Actualizar Bocadillo"),
-            content: Container(
-              height: 300,
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      hintText: "Nombre",
-                    ),
-                  ),
-                  TextField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      hintText: "Descripción",
-                    ),
-                  ),
-                  SizedBox(height: 10),
+void showItemDialogUpdate(uid, name, description, photoUrl, price, List<String>? ingredients) {
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _photoUrlController = TextEditingController();
+  TextEditingController _uidController = TextEditingController();
+  TextEditingController _priceController = TextEditingController();
+  TextEditingController _ingredientsController = TextEditingController();
+  List<String> _ingredients = ingredients ?? [];
 
-                  
-                  Image.network(_photoUrlController.text, height: 100,
-                  
-                 ),
-                   ElevatedButton(
-                    onPressed: () async {
-                      final XFile? pickedFile = await _picker.pickImage(
-                          source: ImageSource.gallery,
-                          imageQuality: 50,
-                          );
-                      if (pickedFile != null) {
-                        
-                        final newPhotoUrl =
-                      await BocadilloService.savePhoto(pickedFile);
+  _nameController.text = name;
+  _descriptionController.text = description;
+  _photoUrlController.text = photoUrl;
+  _uidController.text = uid;
+  _priceController.text = price.toString();
+  _ingredientsController.text = _ingredients.join(', ');
+
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Actualizar Bocadillo"),
+          content: Container(
+            height: 500,
+            child: Column(
+              children: [
+                TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    hintText: "Nombre",
+                  ),
+                ),
+                TextField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(
+                    hintText: "Descripción",
+                  ),
+                ),
+                TextField(
+                  controller: _priceController,
+                  decoration: InputDecoration(
+                    hintText: "Precio",
+                  ),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                ),
+                TextField(
+                  controller: _ingredientsController,
+                  decoration: InputDecoration(
+                    hintText: "Ingredientes",
+                  ),
+                  readOnly: true,
+                ),
+                TextField(
+                  controller: _photoUrlController,
+                  decoration: InputDecoration(
+                    hintText: "URL de la imagen",
+                  ),
+                ),
+                SizedBox(height: 10),
+
+                Image.network(_photoUrlController.text, height: 100),
+
+                ElevatedButton(
+                  onPressed: () async {
+                    final XFile? pickedFile = await _picker.pickImage(
+                        source: ImageSource.gallery,
+                        imageQuality: 50,
+                    );
+                    if (pickedFile != null) {
+                      final newPhotoUrl =
+                          await BocadilloService.savePhoto(pickedFile);
                       showItemDialogUpdate(
                         _uidController.text,
                         _nameController.text,
                         _descriptionController.text,
-                        newPhotoUrl,);
-                      
-                  
-                      }
-                    },
-                    child: const Text('Cambiar imagen'))
-                ],
-              ),
+                        newPhotoUrl,
+                        _priceController.text,
+                        _ingredients,
+                      );
+                    }
+                  },
+                  child: const Text('Cambiar imagen')),
+                ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        TextEditingController _ingredientController =
+                            TextEditingController();
+                        return AlertDialog(
+                          title: const Text("Agregar ingrediente"),
+                          content: TextField(
+                            controller: _ingredientController,
+                            decoration: InputDecoration(
+                              hintText: "Ingrediente",
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                if (_ingredientController.text.isNotEmpty) {
+                                  _ingredients.add(_ingredientController.text);
+                                  _ingredientsController.text = _ingredients.join(', ');
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              child: const Text("Agregar"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Cancelar"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Text('Agregar ingrediente'),
+                ),
+              ],
             ),
+          ),
          
 
             actions: [
               TextButton(
                 onPressed: () async{
-                  if(_nameController.text == "" || _descriptionController.text == "" || _photoUrlController.text == ""){
+                  if(_nameController.text == "" || _photoUrlController.text == "" || _priceController.text == "" || _ingredientsController.text == ""){
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Rellena todos los campos'),
@@ -597,7 +723,10 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                     uid,
                    _nameController.text,
                     _descriptionController.text,
-                      _photoUrlController.text);
+                      _photoUrlController.text,
+                      double.parse(_priceController.text),
+                      _ingredients,
+                      );
                       
                   
                   _refreshPage(context);
@@ -615,6 +744,32 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
         });
   }
 }
+Future<String> generateDescription(String name, List<String> ingredients) async {
+  // Reemplaza "YOUR_API_KEY" con tu clave API de OpenAI
+  String apiKey = "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";
+  final openAI = OpenAI.instance.build(
+    token: apiKey,
+    baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 5)),
+    isLog: true,
+  );
+
+  final request = ChatCompleteText(
+    messages: [
+      Map.of({"role": "user", "content": "Describe un producto llamado $name que contiene los siguientes ingredientes: ${ingredients.join(', ')}. En un máximo de 125 caracteres"}),
+    ],
+    maxToken: 33,
+    model: ChatModel.ChatGptTurboModel,
+  );
+
+  final response = await openAI.onChatCompletion(request: request);
+  if (response != null) {
+    String description = response.choices[0].message.content.trim();
+    return description;
+  } else {
+    throw Exception("Error al generar la descripción");
+  }
+}
+
 
 class TestPage extends StatelessWidget {
   const TestPage({Key? key}) : super(key: key);
