@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_proyecto_segunda_evaluacion/imports.dart';
 
 import 'package:flutter_proyecto_segunda_evaluacion/pages/home_admin.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_proyecto_segunda_evaluacion/pages/home_user.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+   await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

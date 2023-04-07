@@ -1,6 +1,7 @@
 
 
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
@@ -746,7 +747,8 @@ void showItemDialogUpdate(uid, name, description, photoUrl, price, List<String>?
 }
 Future<String> generateDescription(String name, List<String> ingredients) async {
   // Reemplaza "YOUR_API_KEY" con tu clave API de OpenAI
-  String apiKey = "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";
+
+  String apiKey = dotenv.env['OPEN_API_KEY']!;
   final openAI = OpenAI.instance.build(
     token: apiKey,
     baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 5)),
@@ -755,9 +757,9 @@ Future<String> generateDescription(String name, List<String> ingredients) async 
 
   final request = ChatCompleteText(
     messages: [
-      Map.of({"role": "user", "content": "Describe un producto llamado $name que contiene los siguientes ingredientes: ${ingredients.join(', ')}. En un máximo de 125 caracteres"}),
+      Map.of({"role": "user", "content": "Describe un bocadillo llamado $name que contiene los siguientes ingredientes: ${ingredients.join(', ')}. En un máximo de 115 caracteres"}),
     ],
-    maxToken: 33,
+    maxToken: 37,
     model: ChatModel.ChatGptTurboModel,
   );
 
