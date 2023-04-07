@@ -344,7 +344,7 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
       children: <Widget>[
         Scaffold(
           appBar: AppBar(
-            title: const Text("Bocateria Barea"),
+            title: const Text("Bocateria Barea (Admin)"),
             elevation: 0.0,
             leading: IconButton(
               icon: const Icon(Icons.person),
