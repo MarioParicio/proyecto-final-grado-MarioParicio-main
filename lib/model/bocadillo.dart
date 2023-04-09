@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 class Bocadillo {
-  Bocadillo({this.uid, required this.name, required this.description, required this.photoUrl,  this.price,  this.ingredients});
+  Bocadillo({this.uid, required this.name, required this.description, required this.photoUrl, required this.price,  this.ingredients});
 
   String? uid;
   String name;
   String description;
   String photoUrl;
-  double? price;
+  double price;
   List<String>? ingredients;
 
   factory Bocadillo.fromJson(Map<String, dynamic> json) => Bocadillo(

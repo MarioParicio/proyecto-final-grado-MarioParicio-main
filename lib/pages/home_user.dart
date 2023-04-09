@@ -84,13 +84,7 @@ class _HomeUserState extends State<HomeUser> {
                   final navigator = Navigator.of(
                     context,
                   );
-                  z.close?.call()?.then(
-                        (value) => navigator.push(
-                          MaterialPageRoute(
-                            builder: (_) => TestPage(),
-                          ),
-                        ),
-                      );
+                  
                 },
                 child: SizedBox(
                   //Adaptada al contenido
@@ -398,34 +392,27 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                           ),
                           child: InkWell(
                             onTap: () {
-                              showItemDialogUpdate(
+                              showFoodDetailsDialog(
                                 _bocadillos[index].uid,
                                 _bocadillos[index].name,
                                 _bocadillos[index].description,
                                 _bocadillos[index].photoUrl,
+                                _bocadillos[index].price,
+                                _bocadillos[index].ingredients
                               );
                             },
                             child: TarjetaPersonalizadaUser(
                               description: _bocadillos[index].description,
                               photoUrl: _bocadillos[index].photoUrl,
                               name: _bocadillos[index].name,
+                              price: _bocadillos[index].price,
                             ),
                           ),
                         );
                       }
                       
                       ),
-                      Positioned(
-            bottom: 16.0,
-            right: 16.0,
-            child: FloatingActionButton(
-              onPressed: () {
-                showItemDialogCreate();
-                
-              },
-              child: Icon(Icons.add),
-            ),
-          ),
+                     
                   ],
                 ),
                  
@@ -516,86 +503,105 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
   }
 
 
-  void showItemDialogUpdate(uid, name, description, photoUrl) {
-    TextEditingController _nameController = TextEditingController();
-    TextEditingController _descriptionController = TextEditingController();
-    TextEditingController _photoUrlController = TextEditingController();
-    TextEditingController _uidController = TextEditingController();
-    _nameController.text = name;
-    _descriptionController.text = description;
-    _photoUrlController.text = photoUrl;
-    _uidController.text = uid;
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Actualizar Bocadillo"),
-            content: Container(
-              height: 300,
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      hintText: "Nombre",
-                    ),
-                  ),
-                  TextField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      hintText: "Descripción",
-                    ),
-                  ),
-                  SizedBox(height: 10),
+void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients) {
+  int quantity = 1;
+  String note = '';
 
-                  
-                  Image.network(_photoUrlController.text, height: 100,
-                  
-                 ),
-                   ElevatedButton(
-                    onPressed: () async {
-                      final XFile? pickedFile = await _picker.pickImage(
-                          source: ImageSource.gallery,
-                          imageQuality: 50,
-                          );
-                      if (pickedFile != null) {
-                        
-                        final newPhotoUrl =
-                      await BocadilloService.savePhoto(pickedFile);
-                      showItemDialogUpdate(
-                        _uidController.text,
-                        _nameController.text,
-                        _descriptionController.text,
-                        newPhotoUrl,);
-                      
-                  
-                      }
-                    },
-                    child: const Text('Cambiar imagen'))
-                ],
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.zero,
+            title: Image.network(
+              photoUrl,
+              height: 200,
+              width: 900,
+              fit: BoxFit.cover,
+            ),
+            content: Container(
+              height: 300, // Revert the height back to 300
+              child: SingleChildScrollView( // Add the SingleChildScrollView
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      description,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "Ingredientes: " + ingredients.join(', '),
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Cantidad: "),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.remove),
+                              onPressed: () {
+                                setState(() {
+                                  if (quantity > 1 ) {
+                                    quantity -= 1;
+                                  }
+                                });
+                              },
+                            ),
+                            Text(quantity.toString()),
+                            IconButton(
+                              icon: Icon(Icons.add),
+                              onPressed: () {
+                                setState(() {
+                                  if (quantity < 10) {
+                                    quantity += 1;
+                                  }
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    TextFormField(
+                      onChanged: (value) {
+                        note = value;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Añadir nota',
+                        hintText: 'Escribe una nota para el pedido (opcional)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-         
-
             actions: [
-              TextButton(
-                onPressed: () async{
-                  if(_nameController.text == "" || _descriptionController.text == "" || _photoUrlController.text == ""){
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Rellena todos los campos'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        return;
-                      }
-                  
-                  
-                      
-                  
+              ElevatedButton(
+                onPressed: () {
+                  // Add request logic here, if necessary
+
                   _refreshPage(context);
                 },
-                child: Text("Actualizar"),
+                child: Row(
+                  children: [
+                    Text("Pedir "),
+                    Text(
+                      (price * quantity).toStringAsFixed(2) + "\€",
+                      //€ instead of $ and first price
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
               TextButton(
                 onPressed: () {
@@ -606,19 +612,6 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
             ],
           );
         });
-  }
+      });
 }
-
-class TestPage extends StatelessWidget {
-  const TestPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: Text("Test Page !"),
-      ),
-    );
-  }
 }

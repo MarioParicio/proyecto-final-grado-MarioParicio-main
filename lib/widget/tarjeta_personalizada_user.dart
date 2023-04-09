@@ -6,11 +6,13 @@ class TarjetaPersonalizadaUser extends StatelessWidget {
     required this.name,
     required this.photoUrl,
     required this.description,
+    required this.price,
   }) : super(key: key);
 
   final String name;
   final String photoUrl;
   final String description;
+  final double price;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +82,7 @@ class TarjetaPersonalizadaUser extends StatelessWidget {
                   
                 ),
                 Text(
-                  '1.80€',
+                  '${price.toStringAsFixed(2)}€',
                   //BOLD
                   style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),

@@ -641,8 +641,7 @@ void showItemDialogUpdate(uid, name, description, photoUrl, price, List<String>?
                 ),
                 SizedBox(height: 10),
 
-                Image.network(_photoUrlController.text, height: 100),
-
+                
                 ElevatedButton(
                   onPressed: () async {
                     final XFile? pickedFile = await _picker.pickImage(
@@ -757,7 +756,7 @@ Future<String> generateDescription(String name, List<String> ingredients) async 
 
   final request = ChatCompleteText(
     messages: [
-      Map.of({"role": "user", "content": "Describe un bocadillo llamado $name que contiene los siguientes ingredientes: ${ingredients.join(', ')}. En un máximo de 115 caracteres"}),
+      Map.of({"role": "user", "content": "Describe un bocadilloz llamado $name que contiene los siguientes ingredientes: ${ingredients.join(', ')}. En un máximo de 115 caracteres"}),
     ],
     maxToken: 37,
     model: ChatModel.ChatGptTurboModel,
