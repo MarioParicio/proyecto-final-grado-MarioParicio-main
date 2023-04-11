@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
-class TarjetaPersonalizada extends StatelessWidget {
+class TarjetaPersonalizada extends StatefulWidget {
   const TarjetaPersonalizada({
     Key? key,
     required this.name,
     required this.photoUrl,
     required this.description,
     required this.price,
-    
-
   }) : super(key: key);
 
   final String name;
@@ -16,7 +14,12 @@ class TarjetaPersonalizada extends StatelessWidget {
   final String description;
   final double price;
 
+  @override
+  _TarjetaPersonalizadaState createState() => _TarjetaPersonalizadaState();
+}
 
+class _TarjetaPersonalizadaState extends State<TarjetaPersonalizada> {
+  bool _bocadillosActive = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +36,7 @@ class TarjetaPersonalizada extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 FadeInImage(
-                  image: NetworkImage(photoUrl),
+                  image: NetworkImage(widget.photoUrl),
                   placeholder: const AssetImage('assets/placeHolderBocadillo.jpeg'),
                   fadeInDuration: const Duration(milliseconds: 300),
                   fit: BoxFit.cover,
@@ -52,7 +55,7 @@ class TarjetaPersonalizada extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.all(10.0),
                     child: Text(
-                      name,
+                      widget.name,
                       style: TextStyle(
                         fontSize: 18.0,
                         color: Colors.white,
@@ -68,20 +71,36 @@ class TarjetaPersonalizada extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
-              description,
+              widget.description,
               style: TextStyle(fontSize: 16.0),
             ),
           ),
           SizedBox(height: 10.0),
+          
+          
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Text(
-              'Precio: \$${price.toStringAsFixed(2)}',
+            child: Row(
+              children: [
+                Text(
+              'Precio: \$${widget.price.toStringAsFixed(2)}',
               style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
             ),
+                Text('Activado: '),
+                Switch(
+                  value: _bocadillosActive,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _bocadillosActive = value;
+                    });
+                  },
+                  activeColor: Colors.green,
+                  inactiveThumbColor: Colors.red,
+                  inactiveTrackColor: Colors.red.shade100,
+                ),
+              ],
+            ),
           ),
-          
-          
           SizedBox(height: 10.0),
         ],
       ),
