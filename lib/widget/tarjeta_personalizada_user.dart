@@ -7,12 +7,14 @@ class TarjetaPersonalizadaUser extends StatelessWidget {
     required this.photoUrl,
     required this.description,
     required this.price,
+    required this.OnPedirPressed, 
   }) : super(key: key);
 
   final String name;
   final String photoUrl;
   final String description;
   final double price;
+  final Function( ) OnPedirPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +92,9 @@ class TarjetaPersonalizadaUser extends StatelessWidget {
                   //mas ancho
                   
                   
-                  onPressed: () {},
+                  onPressed: () {
+                    OnPedirPressed();
+                  },
                   child: const Text('Pedir Bocadillo'),
                   style: ElevatedButton.styleFrom(
                     //Más ancho

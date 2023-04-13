@@ -4,7 +4,7 @@ import 'pedido_bocadillo.dart';
 class Pedido {
   String idOrder;
   String idClient;
-  String nombre;
+  String email;
   List<PedidoBocadillo> bocadillos_order;
   DateTime dateOrder;
   bool paid;
@@ -12,7 +12,7 @@ class Pedido {
   Pedido({
     required this.idOrder,
     required this.idClient,
-    required this.nombre,
+    required this.email,
     required this.bocadillos_order,
     required this.dateOrder,
     required this.paid,
@@ -23,7 +23,7 @@ class Pedido {
     return Pedido(
       idOrder: json['idOrder'],
       idClient: json['idClient'],
-      nombre: json['nombre'], 
+      email: json['email'], 
       bocadillos_order: List<PedidoBocadillo>.from(json['bocadillos_order'].map((x) => PedidoBocadillo.fromJson(x))),
       dateOrder: DateTime.parse(json['dateOrder']),
       paid: json['paid'],
@@ -35,7 +35,7 @@ class Pedido {
     return {
       'idOrder': idOrder,
       'idClient': idClient,
-      'nombre': nombre,
+      'email': email,
       'bocadillos_order': bocadillos_order.map((bocadillo) => bocadillo.toJson()).toList(),
       'dateOrder': dateOrder.toIso8601String(),
       'paid': paid,

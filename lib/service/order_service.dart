@@ -32,7 +32,7 @@ class PedidoService {
     Pedido order = Pedido(
       idOrder: '',
       idClient: idClient,
-      nombre: nombre,
+      email: nombre,
       bocadillos_order: bocadillos_order,
       dateOrder: dateOrder,
       paid: paid,

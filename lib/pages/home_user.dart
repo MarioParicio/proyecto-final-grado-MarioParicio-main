@@ -330,7 +330,13 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
   Widget bothPanels(BuildContext context, BoxConstraints constraints) {
     //Usa la función asincrona FetchBocadillos
     //para cargar la lista de bocadillos
+  int quantity = 1;
+  String note = '';
 
+  // Obtener el ID del usuario actual
+  final user = FirebaseAuth.instance.currentUser;
+  final userUid = user?.uid;
+  final email = user?.email;
 
     final ThemeData theme = Theme.of(context);
     return Stack(
@@ -408,6 +414,24 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                               photoUrl: _bocadillos[index].photoUrl,
                               name: _bocadillos[index].name,
                               price: _bocadillos[index].price,
+                              OnPedirPressed: () {
+
+                                PedidoBocadillo bocadilloOrder = PedidoBocadillo(uid: _bocadillos[index].uid, bocadilloName: _bocadillos[index].name, cantidad: quantity, nota: note);
+                                
+                                PedidoService.addOrder(
+                                  
+                                    userUid!, email!, [bocadilloOrder], DateTime.now(), false
+
+
+
+                                );
+                                    
+                              
+
+
+
+                                
+                              },
                             ),
                           ),
                         );
@@ -511,7 +535,8 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
 
   // Obtener el ID del usuario actual
   final user = FirebaseAuth.instance.currentUser;
-  final userId = user?.uid;
+  final userUid = user?.uid;
+  final email = user?.email;
 
 
 
@@ -519,6 +544,7 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState) {
+           TextEditingController noteController = TextEditingController();
           return AlertDialog(
             titlePadding: EdgeInsets.zero,
             title: Image.network(
@@ -580,6 +606,7 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
                       ],
                     ),
                     TextFormField(
+                      controller: noteController, 
                       onChanged: (value) {
                         note = value;
                       },
@@ -597,8 +624,13 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
               ElevatedButton(
                 onPressed: () async{
                   // Add request logic here, if necessary
-                  PedidoBocadillo bocadilloOrder = PedidoBocadillo(uid: uid, cantidad: quantity, nota: note);
-                  await PedidoService.addOrder(userId!, name, [bocadilloOrder], DateTime.now(), false);
+                  //Obtener texto en la nota aunque el usuario no la haya confirmado
+                    String unconfirmedNote = noteController.text;
+        
+
+                  PedidoBocadillo bocadilloOrder = PedidoBocadillo(uid: uid, bocadilloName: name, cantidad: quantity, nota: unconfirmedNote);
+                  await PedidoService.addOrder(userUid!, email!, [bocadilloOrder], DateTime.now(), false);
+                  Navigator.of(context).pop();
 
                   
                   
