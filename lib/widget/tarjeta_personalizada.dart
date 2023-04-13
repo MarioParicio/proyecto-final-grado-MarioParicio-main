@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 class TarjetaPersonalizada extends StatefulWidget {
-  const TarjetaPersonalizada({
+   TarjetaPersonalizada({
     Key? key,
+    required this.uid,
     required this.name,
     required this.photoUrl,
     required this.description,
     required this.price,
+    required this.active,
+    required this.index,
+    required this.onSwitchChanged, 
   }) : super(key: key);
 
+  final String uid;
   final String name;
   final String photoUrl;
   final String description;
   final double price;
+  final bool active;
+  final int index;
+  final Function(int index, bool active) onSwitchChanged;
 
   @override
   _TarjetaPersonalizadaState createState() => _TarjetaPersonalizadaState();
@@ -20,6 +28,16 @@ class TarjetaPersonalizada extends StatefulWidget {
 
 class _TarjetaPersonalizadaState extends State<TarjetaPersonalizada> {
   bool _bocadillosActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _bocadillosActive = widget.active;
+  }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -86,18 +104,27 @@ class _TarjetaPersonalizadaState extends State<TarjetaPersonalizada> {
               'Precio: \$${widget.price.toStringAsFixed(2)}',
               style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
             ),
+            Spacer(),
                 Text('Activado: '),
-                Switch(
-                  value: _bocadillosActive,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _bocadillosActive = value;
-                    });
-                  },
-                  activeColor: Colors.green,
-                  inactiveThumbColor: Colors.red,
-                  inactiveTrackColor: Colors.red.shade100,
-                ),
+               Switch(
+  value: _bocadillosActive,
+  onChanged: (bool value) {
+    setState(() {
+      _bocadillosActive = value;
+    });
+
+    FirebaseFirestore.instance
+        .collection('bocadillos')
+        .doc(widget.uid)
+        .update({'active': _bocadillosActive});
+
+    // Call the callback function
+    widget.onSwitchChanged(widget.index, _bocadillosActive);
+  },
+  activeColor: Colors.green,
+  inactiveThumbColor: Colors.red,
+  inactiveTrackColor: Colors.red.shade100,
+),
               ],
             ),
           ),

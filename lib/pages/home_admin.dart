@@ -204,11 +204,11 @@ class TwoPanels extends StatefulWidget {
 }
 
 class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
-  List<Bocadillo> _bocadillos = [];
+  static List<Bocadillo> _bocadillos = [];
   @override
   void initState() {
     super.initState();
-    BocadilloService.fetchBocadillos().then((bocadillos) {
+    BocadilloService.fetchAllBocadillos().then((bocadillos) {
       setState(() {
         _bocadillos = bocadillos;
       });
@@ -433,6 +433,7 @@ void showItemDialogCreate() {
               Container(
                 child: Stack(
                   children: [ListView.builder(
+                    
                       itemCount: _bocadillos.length,
                       itemBuilder: (context, index) {
                         return Slidable(
@@ -471,10 +472,19 @@ void showItemDialogCreate() {
                               );
                             },
                             child: TarjetaPersonalizada(
+                              uid: _bocadillos[index].uid!,
                               description: _bocadillos[index].description,
                               photoUrl: _bocadillos[index].photoUrl,
                               name: _bocadillos[index].name,
                               price: 3.5,
+                              active: _bocadillos[index].active,
+                              index: index,
+                              onSwitchChanged: (int index, bool active) { // Add the callback function
+                                        setState(() {
+                                        _bocadillos[index].active = active;
+                                      });
+                                      },
+
                             ),
                           ),
                         );

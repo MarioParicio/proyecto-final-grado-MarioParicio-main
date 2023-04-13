@@ -1,5 +1,7 @@
 
 
+import 'package:flutter_proyecto_segunda_evaluacion/model/pedido_bocadillo.dart';
+import 'package:flutter_proyecto_segunda_evaluacion/service/order_service.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
@@ -507,6 +509,12 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
   int quantity = 1;
   String note = '';
 
+  // Obtener el ID del usuario actual
+  final user = FirebaseAuth.instance.currentUser;
+  final userId = user?.uid;
+
+
+
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -587,10 +595,15 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
             ),
             actions: [
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async{
                   // Add request logic here, if necessary
+                  PedidoBocadillo bocadilloOrder = PedidoBocadillo(uid: uid, cantidad: quantity, nota: note);
+                  await PedidoService.addOrder(userId!, name, [bocadilloOrder], DateTime.now(), false);
 
-                  _refreshPage(context);
+                  
+                  
+                  
+                  // _refreshPage(context);
                 },
                 child: Row(
                   children: [

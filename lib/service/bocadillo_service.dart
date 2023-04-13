@@ -42,8 +42,35 @@ class BocadilloService {
   static Future<List<Bocadillo>> fetchBocadillos() async {
     final bocadillos = <Bocadillo>[];
 
+   
     try {
-      final snapshot = await FirebaseFirestore.instance.collection(COLLECTION_NAME).get();
+      final snapshot = await FirebaseFirestore.instance.collection(COLLECTION_NAME)
+      .where('active', isEqualTo: true)
+      
+
+      .get();
+      //obtener el uid
+
+      snapshot.docs.forEach((doc) {
+        var bocadilloData = doc.data();
+        bocadilloData['uid'] = doc.id;
+        bocadillos.add(Bocadillo.fromJson(bocadilloData));
+        print("Bocadillo: ");
+        print(bocadilloData);
+      });
+    } catch (e) {}
+
+    return bocadillos;
+  }
+    static Future<List<Bocadillo>> fetchAllBocadillos() async {
+    final bocadillos = <Bocadillo>[];
+
+    //Obtener solo si el campo active no es false o es null
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection(COLLECTION_NAME)
+      
+
+      .get();
       //obtener el uid
 
       snapshot.docs.forEach((doc) {
@@ -65,6 +92,7 @@ class BocadilloService {
       photoUrl: photoUrl,
       price: price,
       ingredients: ingredients,
+      active: true,
       
     );
     FirebaseFirestore.instance.collection(COLLECTION_NAME).add(bocadillo.toJson());
@@ -88,6 +116,7 @@ static Future<void> actualizarBocadillo(
           'photoUrl': photoUrl,
           'price': price,
           'ingredients': ingredients,
+          'active': true,
     
         })
         .then((value) => SnackBar(content: Text("Bocadillo actualizado correctamente")))
