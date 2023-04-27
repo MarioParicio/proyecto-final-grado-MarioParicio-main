@@ -37,14 +37,20 @@ class MyApp extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     // caso base mientras se espera la respuesta del Future
                     return Scaffold(body: Center(child: CircularProgressIndicator()));
-                  } else if (snapshot.hasData) {
-                    if (snapshot.data!.get('role') == 'admin') {
+                  } else if (snapshot.hasData && snapshot.data!.exists) {
+        // Se añade una comprobación adicional aquí para asegurarse de que el documento realmente existe
+        Map<String, dynamic>? data = snapshot.data!.data() as Map<String, dynamic>?;
+        if (data != null && data.containsKey('role')) {
+          // Comprueba si el campo 'role' existe antes de intentar acceder a él
+          if (data['role'] == 'admin') {
                       return HomeAdmin();
                     } else {
                       return HomeUser();
                     }
                   } else {
-                    return Login();
+                    return HomeUser();
+                  }} else {
+                    return HomeUser();
                   }
                 },
               );
@@ -52,6 +58,7 @@ class MyApp extends StatelessWidget {
               // el usuario no está logueado
               return Login();
             }
+            
           },
         ),
         splashTransition: SplashTransition.slideTransition,
