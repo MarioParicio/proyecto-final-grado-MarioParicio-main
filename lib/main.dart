@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_proyecto_segunda_evaluacion/imports.dart';
 
@@ -40,18 +41,39 @@ class MyApp extends StatelessWidget {
                   } else if (snapshot.hasData && snapshot.data!.exists) {
         // Se añade una comprobación adicional aquí para asegurarse de que el documento realmente existe
         Map<String, dynamic>? data = snapshot.data!.data() as Map<String, dynamic>?;
-        if (data != null && data.containsKey('role')) {
-          // Comprueba si el campo 'role' existe antes de intentar acceder a él
+        if (data != null && data.containsKey('role') && data.containsKey('state')) {
+        // Comprueba si el campo 'role' y 'state' existen antes de intentar acceder a ellos
+        if (data['state'] == 'active') {
+          // Solo permitir el acceso si el estado es 'active'
+
           if (data['role'] == 'admin') {
-                      return HomeAdmin();
-                    } else {
-                      return HomeUser();
-                    }
-                  } else {
-                    return HomeUser();
-                  }} else {
-                    return HomeUser();
-                  }
+            return HomeAdmin();
+          } else {
+            return HomeUser();
+          }
+        } else {
+          // Si el estado es 'inactive' mostrar un mensaje de error
+          FirebaseAuth.instance.signOut();
+                    SchedulerBinding.instance!.addPostFrameCallback((_) {
+                       final  snackBar =  SnackBar(content: Text('Account is inactive. Please contact support.'),
+                        backgroundColor: Colors.red, // set color as red
+                        );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    });
+                    return Login();
+           
+
+          
+         
+
+        }
+      } else {
+        return HomeUser();
+      }
+    } else {
+      return HomeUser();
+    }
+
                 },
               );
             } else {
