@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
             } else if (snapshot.hasData) {
               // el usuario ya está logueado
               return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance.collection('roles').doc(snapshot.data!.uid).get(),
+                future: FirebaseFirestore.instance.collection(USERS_COLLECTION).doc(snapshot.data!.uid).get(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     // caso base mientras se espera la respuesta del Future

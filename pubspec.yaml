@@ -42,7 +42,7 @@ dependencies:
   firebase_auth: ^4.2.10
   flutter_zoom_drawer: ^3.0.4+1
   shared_preferences: ^2.0.18
-  google_sign_in: ^6.0.2
+  google_sign_in: ^6.1.0
   flutter_slidable: ^2.0.0
   firebase_storage: ^11.0.15
   cloud_firestore: ^4.4.4

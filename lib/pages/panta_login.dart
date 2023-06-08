@@ -5,11 +5,11 @@ import 'package:flutter_proyecto_segunda_evaluacion/pages/home_admin.dart';
 import 'home_user.dart';
 
 
-
+final String USERS_COLLECTION = "users";
 class Login extends StatelessWidget {
   Duration get loginTime => Duration(milliseconds: 2250);
   
-
+  
 
    @override
   Widget build(BuildContext context) {
@@ -23,9 +23,9 @@ class Login extends StatelessWidget {
               password: loginData.password,
 
       );
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection(USERS_COLLECTION).doc(FirebaseAuth.instance.currentUser!.uid).get();
       if (!userDoc.exists){
-        FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).set({
+        FirebaseFirestore.instance.collection(USERS_COLLECTION).doc(FirebaseAuth.instance.currentUser!.uid).set({
                   'email': FirebaseAuth.instance.currentUser!.email,
                   'role': 'user',
                   
@@ -52,7 +52,7 @@ class Login extends StatelessWidget {
           email: signupData.name!,
           password: signupData.password!,
       );
-      FirebaseFirestore.instance.collection('roles').doc(userCredential.user!.uid).set({
+      FirebaseFirestore.instance.collection(USERS_COLLECTION).doc(userCredential.user!.uid).set({
         'role': 'user',
         'email': userCredential.user!.email,
       });
@@ -92,9 +92,9 @@ class Login extends StatelessWidget {
                 idToken: googleAuth.idToken,
               );
               await FirebaseAuth.instance.signInWithCredential(credential);
-              DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).get();
+              DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection(USERS_COLLECTION).doc(FirebaseAuth.instance.currentUser!.uid).get();
               if(!userDoc.exists){
-                FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).set({
+                FirebaseFirestore.instance.collection(USERS_COLLECTION).doc(FirebaseAuth.instance.currentUser!.uid).set({
                   'email': FirebaseAuth.instance.currentUser!.email,
                   'role': 'user',
                   
@@ -120,7 +120,7 @@ class Login extends StatelessWidget {
   onSubmitAnimationCompleted: () {
 
       //Obtner rol de firebase y redirigir a la pagina correspondiente
-      FirebaseFirestore.instance.collection('roles').doc(FirebaseAuth.instance.currentUser!.uid).get().then((DocumentSnapshot documentSnapshot) {
+      FirebaseFirestore.instance.collection(USERS_COLLECTION).doc(FirebaseAuth.instance.currentUser!.uid).get().then((DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists) {
           if(documentSnapshot['role'] == 'admin'){
             Navigator.of(context).pushReplacement(MaterialPageRoute(
