@@ -21,7 +21,7 @@ final String COLLECTION_NAME = "bocadillos";
 User? user = _auth.currentUser;
 //Datos del usuario to String, relevantes para mostrar en el perfil
  String? photoURL = user?.photoURL.toString();
- String? name = user?.displayName.toString();
+ String? nameUser = user?.displayName.toString();
  String? email = user?.email.toString();
  String? uid = user?.uid.toString();
 final String? phoneNumber = user?.phoneNumber.toString();
@@ -50,7 +50,7 @@ class _HomeUserState extends State<HomeUser> {
       _auth = FirebaseAuth.instance;
       user = _auth.currentUser;
       email = user?.email.toString();
-      name = user?.displayName.toString();
+      nameUser = user?.displayName.toString();
       photoURL = user?.photoURL.toString();
       
 
@@ -110,7 +110,7 @@ class _HomeUserState extends State<HomeUser> {
               : null,
           ),
           SizedBox(height: 20),
-          Text(name ?? "Guess", style: TextStyle(fontSize: 20)),
+          Text(nameUser ?? "Guess", style: TextStyle(fontSize: 20)),
           Text(email ?? "", style: TextStyle(fontSize: 14)),
           SizedBox(height: 20),
           IconButton(
@@ -343,7 +343,7 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
       children: <Widget>[
         Scaffold(
           appBar: AppBar(
-            title: const Text("Bocateria Barea (User)"),
+            title: const Text("Bocateria Barea"),
             elevation: 0.0,
             leading: IconButton(
               icon: const Icon(Icons.person),
@@ -414,24 +414,25 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                               photoUrl: _bocadillos[index].photoUrl,
                               name: _bocadillos[index].name,
                               price: _bocadillos[index].price,
-                              OnPedirPressed: () {
-
-                                PedidoBocadillo bocadilloOrder = PedidoBocadillo(uid: _bocadillos[index].uid, bocadilloName: _bocadillos[index].name, cantidad: quantity, nota: note);
-                                
-                                PedidoService.addOrder(
-                                  
-                                    userUid!, email!, [bocadilloOrder], DateTime.now(), false
-
-
-
-                                );
-                                    
+                                                        OnPedirPressed: () {
+                              PedidoBocadillo bocadilloOrder = PedidoBocadillo(uid: _bocadillos[index].uid, bocadilloName: _bocadillos[index].name, cantidad: quantity, nota: note);
                               
+                              String nombre = nameUser ?? "";
+                              String estado = "process";    // Replace with actual value
+                              double total = _bocadillos[index].price * quantity;
+                              
+                              PedidoService.addOrder(
+                                  userUid!,  nombre,email!, [bocadilloOrder], DateTime.now(), false, estado, total
+                              );
+                              //Mensaje de confirmación
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Pedido realizado correctamente'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
 
-
-
-                                
-                              },
+},
                             ),
                           ),
                         );
@@ -622,32 +623,40 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
             ),
             actions: [
               ElevatedButton(
-                onPressed: () async{
-                  // Add request logic here, if necessary
-                  //Obtener texto en la nota aunque el usuario no la haya confirmado
+                  onPressed: () async{
+                    // Add request logic here, if necessary
+                    // Obtener texto en la nota aunque el usuario no la haya confirmado
                     String unconfirmedNote = noteController.text;
-        
 
-                  PedidoBocadillo bocadilloOrder = PedidoBocadillo(uid: uid, bocadilloName: name, cantidad: quantity, nota: unconfirmedNote);
-                  await PedidoService.addOrder(userUid!, email!, [bocadilloOrder], DateTime.now(), false);
-                  Navigator.of(context).pop();
+                    PedidoBocadillo bocadilloOrder = PedidoBocadillo(uid: uid, bocadilloName: name, cantidad: quantity, nota: unconfirmedNote);
 
-                  
-                  
-                  
-                  // _refreshPage(context);
-                },
-                child: Row(
-                  children: [
-                    Text("Pedir "),
-                    Text(
-                      (price * quantity).toStringAsFixed(2) + "\€",
-                      //€ instead of $ and first price
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                    String nombre = nameUser ?? "";
+                    String estado = "process";    // Replace with actual value
+                    double total = price * quantity;
+
+                    await PedidoService.addOrder(userUid!, nombre, email!, [bocadilloOrder], DateTime.now(), false, estado, total);
+
+                    Navigator.of(context).pop();
+                    //Mensaje de confirmación
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Pedido realizado correctamente'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    // _refreshPage(context);
+                  },
+                  child: Row(
+                    children: [
+                      Text("Pedir "),
+                      Text(
+                        (price * quantity).toStringAsFixed(2) + "\€",
+                        //€ instead of $ and first price
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();

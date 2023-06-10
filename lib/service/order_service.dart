@@ -36,7 +36,7 @@ class PedidoService {
     double total,
   ) async {
     Pedido order = Pedido(
-      idOrder: '',
+
       idClient: idClient,
       nameClient: nombre,
       email: email,

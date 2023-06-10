@@ -4,6 +4,8 @@ import 'package:flutter_proyecto_segunda_evaluacion/imports.dart';
 
 import 'package:flutter_proyecto_segunda_evaluacion/pages/home_admin.dart';
 import 'package:flutter_proyecto_segunda_evaluacion/pages/home_user.dart';
+import 'package:flutter/services.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +13,11 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+    runApp(const MyApp());
+  });
+  
 }
 
 class MyApp extends StatelessWidget {
@@ -61,10 +67,6 @@ class MyApp extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     });
                     return Login();
-           
-
-          
-         
 
         }
       } else {
