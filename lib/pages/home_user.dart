@@ -493,6 +493,7 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
                                 ],
                               ),
                               const SizedBox(height: 20),
+                              Image.asset('assets/iesSegundoDeChomon.png'),
                               Text('Cafeteria Segundo de Chomón'),
                               Text('Horario: 10:00 - 14:00 y 17:00 - 21:00'),
                               Text('Teléfono: 976 123 456'),
