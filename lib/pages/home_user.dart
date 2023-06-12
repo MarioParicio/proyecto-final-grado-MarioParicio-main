@@ -530,7 +530,7 @@ class _TwoPanelsState extends State<TwoPanels> with TickerProviderStateMixin {
     );
   }
 
-
+           TextEditingController noteController = TextEditingController();
 void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients) {
   int quantity = 1;
   String note = '';
@@ -546,7 +546,7 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState) {
-           TextEditingController noteController = TextEditingController();
+
           return AlertDialog(
             titlePadding: EdgeInsets.zero,
             title: Image.network(
@@ -588,6 +588,7 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
                                 setState(() {
                                   if (quantity > 1 ) {
                                     quantity -= 1;
+                                    noteController.text = note;
                                   }
                                 });
                               },
@@ -599,6 +600,7 @@ void showFoodDetailsDialog(uid, name, description, photoUrl, price, ingredients)
                                 setState(() {
                                   if (quantity < 10) {
                                     quantity += 1;
+                                    noteController.text = note;
                                   }
                                 });
                               },

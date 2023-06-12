@@ -494,13 +494,13 @@ void showItemDialogCreate() {
                       Positioned(
             bottom: 16.0,
             right: 16.0,
-            child: FloatingActionButton(
-              onPressed: () {
-                showItemDialogCreate();
-                
-              },
-              child: Icon(Icons.add),
-            ),
+          child: FloatingActionButton(
+    onPressed: () {
+        showItemDialogCreate();
+    },
+    child: Icon(Icons.add),
+    backgroundColor: Colors.blue,
+),
           ),
                   ],
                 ),
